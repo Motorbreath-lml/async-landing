@@ -1,5 +1,5 @@
 //const fetch = require('node-fetch'); //Esta linea arroja error
-import fetch from "node-fetch";
+//import fetch from "node-fetch"; //Esta linea causa error en el navegador, y no me cargaba los videos, node-fetch es para usarse en NodeJS que es el servidor
 
 //Traer de index.html el div con el id=content
 const content= null || document.getElementById('content');
@@ -35,11 +35,13 @@ async function fetchData(urlApi) {
     //El codigo HTML de view me lo traje de index.html de la etiqueta quedice content, es para poner ahi los videos que da la api
     //La instruccion videos.item.map(video=>`etc`).slice(0,4).join('') lo que hace es del json el atributo items manda un array de objetos con los videos que nos interesan
     //este array lo pasa a un map y hace una funcion anonima por cada elemento del map, agregando los atreibutos que nos intersan de cada video a una parte del html
+    //Con la etiqueta <a> se hace todo el contenedor de la imagen y titulo un link para el video
     let view = `
     ${videos.items.map(video=>`
     <div class="group relative">
+      <a href="https://youtube.com/watch?v=${video.id.videoId}" target="_blank">
         <div class="w-full bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:aspect-none">
-            <img src="${video.snippet.thumbnail.high.url}" alt="${video.snippet.description}" class="w-full">
+          <img src="${video.snippet.thumbnails.high.url}" alt="${video.snippet.description}" class="w-full">          
         </div>
         <div class="mt-4 flex justify-between">
             <h3 class="text-sm text-gray-700">
@@ -47,8 +49,19 @@ async function fetchData(urlApi) {
                 ${video.snippet.title}
             </h3>
         </div>
+      </a>
     </div>
     `).slice(0,4).join('')}
     `;
-  } catch {}
+    //Pasar cada video al HTML, en el div con id content
+    content.innerHTML=view;
+  } catch (error){
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'Something went wrong with the API!',
+      footer: `${error}`
+    })
+    console.log(error);
+  }
 })();
